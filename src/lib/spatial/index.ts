@@ -1,0 +1,12 @@
+export type { TrinaryState } from './state.js';
+export { isPresent, isPotential, isAbsent, trinaryAnd, trinaryOr, trinaryNot, trinaryTensor } from './state.js';
+export type { Vec3, Vec4, Mat3 } from './types.js';
+export type { Ray, AABB, Sphere } from './ray.js';
+export { createRay, intersectAABB, intersectSphere, intersectGaussian } from './ray.js';
+export { ObservationTensor } from './observation.js';
+export { collapseRay } from './collapse.js';
+export { EntanglementMap } from './entanglement.js';
+export type { Ghost } from './primitives/ghost.js';
+export { createGhost } from './primitives/ghost.js';
+export type { Tether } from './primitives/tether.js';
+export { createTether } from './primitives/tether.js';
