@@ -18,9 +18,11 @@ export function getInitialized() { return initialized; }
 
 /**
  * Initialize device detection (call once from app root).
+ * Only runs in browser (guards against SSR).
  */
 export function initDevices() {
 	if (initialized) return;
+	if (typeof window === 'undefined') return;
 	initialized = true;
 
 	startDeviceDetection({

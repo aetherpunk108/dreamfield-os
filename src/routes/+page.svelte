@@ -36,6 +36,7 @@
 	import { initDevices } from '$lib/stores/devices.svelte.js';
 	import EnvironmentMap from '$lib/components/scene/EnvironmentMap.svelte';
 	import { getNearClip, getFarClip, setHdriPath } from '$lib/stores/environment.svelte.js';
+	import { browser } from '$app/environment';
 	import {
 		getTensor, getCurrentObserverId, setCurrentObserverId,
 		incrementCollapseCount
@@ -74,9 +75,9 @@
 	// Toast ref
 	let toastRef: EventToast;
 
-	// Init pins and device detection on first load
-	$effect(() => { if (getPins().length === 0) initDefaultPins(); });
-	$effect(() => { initDevices(); });
+	// Init pins and device detection on first load (browser only)
+	$effect(() => { if (browser && getPins().length === 0) initDefaultPins(); });
+	$effect(() => { if (browser) initDevices(); });
 
 	// Auto-load galaxy HDRI for planetary/flight/earth views
 	$effect(() => {
