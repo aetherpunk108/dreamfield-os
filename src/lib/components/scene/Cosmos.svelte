@@ -17,7 +17,6 @@
 	import GamePanel from '$lib/components/game/GamePanel.svelte';
 	import { createPlayerState, consumeFuel, rechargeShield, checkLevelUp, distance as dist, SHIP_CLASSES, generateGPSMissions, initWarp, updateWarp, type PlayerState, type WarpState, type GPSMission } from '$lib/game/engine.js';
 	import { getPins, initDefaultPins } from '$lib/navigation/pins.js';
-	import CosmosHud from '$lib/components/hud/CosmosHud.svelte';
 
 	// Shaders
 	import { createAtmosphereShader } from '$lib/shaders/atmosphere.js';
