@@ -53,7 +53,7 @@
 	let booted = $state(false);
 	let introComplete = $state(false);
 	let collapsedIds = $state<Set<string>>(new Set());
-	let viewMode = $state<'spatial' | 'orrery' | 'earth' | 'flight' | 'cosmos' | 'forge'>('orrery'); // Default: planetary view
+	let viewMode = $state<'spatial' | 'cosmos' | 'forge'>('spatial'); // Start in spatial field
 	let showOutliner = $state(true);
 	let showProperties = $state(true);
 	let showControls = $state(false);
@@ -82,9 +82,9 @@
 	$effect(() => { if (browser && getPins().length === 0) initDefaultPins(); });
 	$effect(() => { if (browser) initDevices(); });
 
-	// Auto-load galaxy HDRI for planetary/flight/earth views
+	// Auto-load galaxy HDRI for cosmos/forge views
 	$effect(() => {
-		if (viewMode === 'orrery' || viewMode === 'flight' || viewMode === 'earth') {
+		if (viewMode === 'cosmos' || viewMode === 'forge') {
 			setHdriPath('/hdri/starmap_2020_4k.exr');
 		}
 	});
@@ -129,11 +129,8 @@
 			case 'view:sceneSettings': showSceneSettings = !showSceneSettings; break;
 			case 'view:layers': showLayers = !showLayers; break;
 			case 'view:spatial': viewMode = 'spatial'; break;
-			case 'view:orrery': viewMode = 'orrery'; break;
-			case 'view:earth': viewMode = 'earth'; break;
 			case 'view:cosmos': viewMode = 'cosmos'; break;
 			case 'view:forge': viewMode = 'forge'; break;
-			case 'view:flight': viewMode = 'flight'; break;
 			case 'view:outliner': showOutliner = !showOutliner; break;
 			case 'view:properties': showProperties = !showProperties; break;
 			case 'view:controls': showControls = !showControls; break;
@@ -170,11 +167,8 @@
 			case 'l': showLayers = !showLayers; break;
 			case 'f': flightActive = !flightActive; if (!flightActive) flightLocked = false; break;
 			case '1': viewMode = 'spatial'; break;
-			case '2': viewMode = 'orrery'; break;
-			case '3': viewMode = 'earth'; break;
-			case '4': viewMode = 'flight'; break;
-			case '5': viewMode = 'cosmos'; break;
-			case '6': viewMode = 'forge'; break;
+			case '2': viewMode = 'cosmos'; break;
+			case '3': viewMode = 'forge'; break;
 			case 'escape': selectedId = null; showImportModal = false; showDashboard = false; break;
 		}
 	}
@@ -210,9 +204,9 @@
 				visible: true, children: [{ id: 'breath-atmos', label: 'Atmosphere', type: 'breath' as const }]
 			},
 		];
-		if (viewMode === 'orrery') {
+		if (viewMode === 'cosmos') {
 			nodes.push({
-				id: 'orrery', label: 'Orrery', type: 'group' as const, visible: true,
+				id: 'cosmos', label: 'Cosmos', type: 'group' as const, visible: true,
 				children: [
 					{ id: 'sun', label: 'Sun', type: 'celestial' as const },
 					{ id: 'earth', label: 'Earth', type: 'celestial' as const },
@@ -261,22 +255,13 @@
 		>
 			<div class="view-tabs">
 				<button class="tab" class:active={viewMode === 'spatial'} onclick={() => viewMode = 'spatial'}>
-					<span class="tab-key">1</span> SPATIAL FIELD
-				</button>
-				<button class="tab" class:active={viewMode === 'orrery'} onclick={() => viewMode = 'orrery'}>
-					<span class="tab-key">2</span> ORRERY
-				</button>
-				<button class="tab" class:active={viewMode === 'earth'} onclick={() => viewMode = 'earth'}>
-					<span class="tab-key">3</span> EARTH
-				</button>
-				<button class="tab" class:active={viewMode === 'flight'} onclick={() => viewMode = 'flight'}>
-					<span class="tab-key">4</span> FLIGHT
+					<span class="tab-key">1</span> SPATIAL
 				</button>
 				<button class="tab" class:active={viewMode === 'cosmos'} onclick={() => viewMode = 'cosmos'}>
-					<span class="tab-key">5</span> COSMOS
+					<span class="tab-key">2</span> COSMOS
 				</button>
 				<button class="tab" class:active={viewMode === 'forge'} onclick={() => viewMode = 'forge'}>
-					<span class="tab-key">6</span> FORGE
+					<span class="tab-key">3</span> FORGE
 				</button>
 			</div>
 
@@ -313,45 +298,6 @@
 					<ParticleField />
 					<PostFX bloomIntensity={1.4} bloomThreshold={0.15} bloomRadius={0.7} />
 
-				{:else if viewMode === 'orrery'}
-					{#if !introComplete}
-						<PlanetaryIntro oncomplete={() => introComplete = true} skip={false} />
-					{:else}
-						<T.PerspectiveCamera makeDefault position={[2, 1.5, 4]} fov={45}>
-							<OrbitControls
-								enableDamping dampingFactor={0.04}
-								autoRotate autoRotateSpeed={0.05}
-								minDistance={1} maxDistance={150}
-								target={[0, 0, 0]}
-							/>
-						</T.PerspectiveCamera>
-					{/if}
-
-					<T.AmbientLight intensity={0.015} color="#0a0a22" />
-					<T.DirectionalLight position={[30, 10, 20]} intensity={0.4} color="#ffffee" />
-					<T.Fog args={['#010104', 60, 250]} attach="fog" />
-
-					<EnvironmentMap />
-					<Starfield count={3000} radius={500} twinkleSpeed={1.0} />
-					<Orrery timeMultiplier={80000} visScale={3e-9} showOrbits />
-					<PostFX bloomIntensity={2.0} bloomThreshold={0.08} bloomRadius={0.85} />
-
-				{:else if viewMode === 'earth'}
-					<T.PerspectiveCamera makeDefault position={[0, 2, 8]} fov={40} near={0.01} far={1000}>
-						<OrbitControls
-							enableDamping dampingFactor={0.04}
-							minDistance={3.5} maxDistance={30}
-						/>
-					</T.PerspectiveCamera>
-
-					<T.AmbientLight intensity={0.02} color="#0a0a22" />
-					<T.DirectionalLight position={[20, 10, 15]} intensity={0.6} color="#ffffee" />
-
-					<CesiumEarth radius={3} showClouds showAtmosphere quality="medium" />
-					<Starfield count={1000} radius={80} twinkleSpeed={0.8} />
-					<EnvironmentMap />
-					<PostFX bloomIntensity={1.5} bloomThreshold={0.12} bloomRadius={0.7} />
-
 				{:else if viewMode === 'forge'}
 					<T.PerspectiveCamera makeDefault position={[0, 5, 10]} fov={50} near={0.01} far={10000}>
 						<OrbitControls
@@ -372,18 +318,6 @@
 
 				{:else if viewMode === 'cosmos'}
 					<Cosmos flightEnabled={true} />
-
-				{:else if viewMode === 'flight'}
-					<T.AmbientLight intensity={0.03} color="#222244" />
-					<T.DirectionalLight position={[10, 20, 5]} intensity={0.3} color="#8899bb" />
-					<T.PointLight position={[0, 10, 0]} intensity={0.8} color="#00ffcc" distance={30} decay={2} />
-					<T.Fog args={['#020208', 20, 80]} attach="fog" />
-
-					<EnvironmentMap />
-					<FlightController active={viewMode === 'flight'} />
-					<ScanGrid />
-					<ParticleField />
-					<PostFX bloomIntensity={1.6} bloomThreshold={0.12} bloomRadius={0.75} />
 				{/if}
 			</Canvas>
 
@@ -396,17 +330,6 @@
 				<RadarMinimap
 					ghosts={getGhosts()}
 					getState={getGhostState}
-				/>
-			{:else if viewMode === 'orrery' && introComplete}
-				<PlanetaryHud
-					earthRotation={0}
-					moonPhase={0.5}
-					currentPhase={7}
-					onnavigate={(mode) => {
-						if (mode === 'spatial') viewMode = 'spatial';
-						else if (mode === 'flight') viewMode = 'flight';
-						else if (mode === 'dashboard') showDashboard = true;
-					}}
 				/>
 			{/if}
 
