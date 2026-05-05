@@ -33,9 +33,17 @@ let config: DeviceDetectorConfig = { pollIntervalMs: 2000 };
 
 /**
  * Start device detection polling.
+ * Safe to call multiple times — will restart if already running.
  */
 export function startDeviceDetection(cfg?: Partial<DeviceDetectorConfig>): void {
-	if (pollTimer) return;
+	if (typeof window === 'undefined') return;
+
+	// Clear any existing timer (handles HMR restart)
+	if (pollTimer) {
+		clearInterval(pollTimer);
+		pollTimer = null;
+	}
+
 	config = { ...config, ...cfg };
 
 	// Initial checks
@@ -43,11 +51,13 @@ export function startDeviceDetection(cfg?: Partial<DeviceDetectorConfig>): void 
 	checkVR();
 	pollGamepads();
 
-	// Listen for gamepad events
+	// Listen for gamepad events (remove first to avoid duplicates)
+	window.removeEventListener('gamepadconnected', handleGamepadConnected);
+	window.removeEventListener('gamepaddisconnected', handleGamepadDisconnected);
 	window.addEventListener('gamepadconnected', handleGamepadConnected);
 	window.addEventListener('gamepaddisconnected', handleGamepadDisconnected);
 
-	// Poll timer for ongoing detection
+	// Poll timer — continuous detection every interval
 	pollTimer = setInterval(() => {
 		pollGamepads();
 		checkVR();

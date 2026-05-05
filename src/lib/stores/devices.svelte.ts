@@ -17,11 +17,11 @@ export function getVRReady() { return vrReady; }
 export function getInitialized() { return initialized; }
 
 /**
- * Initialize device detection (call once from app root).
+ * Initialize device detection (call from app root).
+ * Safe to call multiple times — restarts polling each time.
  * Only runs in browser (guards against SSR).
  */
 export function initDevices() {
-	if (initialized) return;
 	if (typeof window === 'undefined') return;
 	initialized = true;
 
