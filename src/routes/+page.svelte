@@ -33,6 +33,7 @@
 	import LayersPanel from '$lib/components/ui/LayersPanel.svelte';
 	import CommandPalette from '$lib/components/ui/CommandPalette.svelte';
 	import DeviceIndicator from '$lib/components/hud/DeviceIndicator.svelte';
+	import FlightToggle from '$lib/components/flight/FlightToggle.svelte';
 	import { initDevices } from '$lib/stores/devices.svelte.js';
 	import EnvironmentMap from '$lib/components/scene/EnvironmentMap.svelte';
 	import { getNearClip, getFarClip, setHdriPath } from '$lib/stores/environment.svelte.js';
@@ -61,6 +62,8 @@
 	let showSceneSettings = $state(false);
 	let showLayers = $state(false);
 	let showCommandPalette = $state(false);
+	let flightActive = $state(false);
+	let flightLocked = $state(false);
 	let selectedId = $state<string | null>(null);
 
 	// Tweakpane
@@ -165,6 +168,7 @@
 			case 't': showControls = !showControls; break;
 			case 'd': showDashboard = !showDashboard; break;
 			case 'l': showLayers = !showLayers; break;
+			case 'f': flightActive = !flightActive; if (!flightActive) flightLocked = false; break;
 			case '1': viewMode = 'spatial'; break;
 			case '2': viewMode = 'orrery'; break;
 			case '3': viewMode = 'earth'; break;
@@ -407,6 +411,12 @@
 			{/if}
 
 			<DeviceIndicator />
+			<FlightToggle
+				active={flightActive}
+				locked={flightLocked}
+				ontoggle={() => { flightActive = !flightActive; if (!flightActive) flightLocked = false; }}
+				onlock={() => { flightLocked = true; }}
+			/>
 			<ViewportBar
 				{viewMode} {selectedId}
 				ghostCount={getGhosts().length}
